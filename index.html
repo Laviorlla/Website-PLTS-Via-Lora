@@ -6,6 +6,7 @@
 <meta name="theme-color" content="#007AFF">
 <title>Monitoring PLTS via LoRa — History</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 <style>
 :root{
   --blue:#007AFF;
@@ -103,6 +104,28 @@ main{
 }
 .card-head h2{margin:0;font-size:15px;font-weight:700;letter-spacing:-.01em}
 .card-head .sub{margin:2px 0 0;font-size:12px;color:var(--ink-2);font-weight:500}
+
+/* ACTION BUTTONS (Excel / PDF) */
+.card-actions{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+.act-btn{
+  border:none;cursor:pointer;font-family:inherit;
+  padding:9px 16px;border-radius:12px;
+  font-size:12.5px;font-weight:700;letter-spacing:.01em;
+  color:var(--blue-dark);
+  background:rgba(0,122,255,.10);
+  display:inline-flex;align-items:center;gap:7px;
+  transition:transform .18s ease, background .18s ease, box-shadow .18s ease;
+}
+.act-btn:hover{background:rgba(0,122,255,.20);transform:translateY(-1px);box-shadow:0 6px 14px rgba(10,70,160,.14)}
+.act-btn:active{transform:translateY(0);box-shadow:none}
+.act-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+.act-btn.primary{
+  background:linear-gradient(145deg,#0A84FF,#0062CC);
+  color:#fff;
+  box-shadow:0 6px 14px rgba(0,90,220,.30);
+}
+.act-btn.primary:hover{background:linear-gradient(145deg,#0077EE,#0056BB)}
+.act-btn svg{width:14px;height:14px;flex:0 0 auto}
 
 /* HERO */
 .hero{
@@ -251,6 +274,7 @@ footer{
   .chart-wrap{height:260px}
   .tabs{margin-left:0;width:100%;justify-content:space-between}
   .tab{flex:1;text-align:center;padding:8px 6px}
+  .card-actions{width:100%;justify-content:flex-end}
 }
 </style>
 </head>
@@ -326,6 +350,24 @@ footer{
         <h2>Riwayat Data</h2>
         <p class="sub">Hanya paket yang benar-benar ada di Firebase · ID bisa melompat</p>
       </div>
+      <div class="card-actions">
+        <button class="act-btn" id="exportExcel" title="Export semua data ke Excel">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 3v5h5"/>
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9l7 7v9a2 2 0 0 1-2 2z"/>
+            <path d="M9 12l2 2 4-4"/>
+          </svg>
+          Export Excel
+        </button>
+        <button class="act-btn primary" id="printPdf" title="Print / Simpan sebagai PDF">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 9V2h12v7"/>
+            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+            <rect x="6" y="14" width="12" height="8" rx="1"/>
+          </svg>
+          Print PDF
+        </button>
+      </div>
     </div>
 
     <div class="table-scroll">
@@ -387,10 +429,7 @@ let chart = null;
 let chartMode = null;
 let lastPacketId = null;
 
-/* Anchor untuk konversi uptime (dari ESP32) ke waktu nyata.
-   Diisi sekali saat data pertama kali masuk:
-   - realMs    : waktu nyata (ms) saat anchor dibuat
-   - uptimeSec : nilai `timestamp` pada paket terakhir ketika anchor dibuat */
+/* Anchor untuk konversi uptime (dari ESP32) ke waktu nyata. */
 let syncAnchor = null;
 
 /* ============================================================
@@ -404,8 +443,7 @@ function hexA(hex, a){
   return `rgba(${parseInt(h.substr(0,2),16)},${parseInt(h.substr(2,2),16)},${parseInt(h.substr(4,2),16)},${a})`;
 }
 
-/* Format waktu nyata: DD/MM/YYYY HH:MM:SS
-   Uptime (detik) dikonversi memakai anchor → hasilkan tanggal & jam sebenarnya. */
+/* Format waktu nyata: DD/MM/YYYY HH:MM:SS */
 function fmtTimestamp(uptimeSec){
   if (!syncAnchor) return '—';
   const ms = syncAnchor.realMs + (num(uptimeSec) - syncAnchor.uptimeSec) * 1000;
@@ -434,8 +472,6 @@ async function fetchHistory(){
   const json = await res.json();
   if (!json) return [];
 
-  // Ambil semua value, urutkan berdasarkan packet_id naik.
-  // ID yang tidak ada di Firebase TIDAK diisi → akan terlihat melompat.
   return Object.values(json)
     .filter(v => v && typeof v === 'object')
     .sort((a, b) => num(a.packet_id) - num(b.packet_id));
@@ -446,8 +482,6 @@ async function refresh(){
     rows = await fetchHistory();
     setStatus(true);
 
-    /* Buat anchor sekali saat data pertama kali tersedia.
-       Anchor dipakai untuk konversi uptime → waktu nyata. */
     if (!syncAnchor && rows.length){
       const lastUptime = num(rows[rows.length-1].timestamp);
       syncAnchor = { realMs: Date.now(), uptimeSec: lastUptime };
@@ -470,6 +504,14 @@ function renderAll(){
   renderStats();
   renderChart();
   renderTable();
+  updateActionButtons();
+}
+
+/* Aktif/nonaktifkan tombol export & print bila belum ada data */
+function updateActionButtons(){
+  const hasData = rows.length > 0;
+  document.getElementById('exportExcel').disabled = !hasData;
+  document.getElementById('printPdf').disabled   = !hasData;
 }
 
 /* ---------- STATISTIK ---------- */
@@ -477,7 +519,6 @@ function renderStats(){
   const n = rows.length;
   const last = n ? rows[n-1] : {};
 
-  /* Hitung paket hilang berdasarkan lompatan packet_id antar entri Firebase */
   let lost = 0;
   for (let i = 1; i < n; i++){
     const gap = num(rows[i].packet_id) - num(rows[i-1].packet_id);
@@ -569,7 +610,6 @@ function buildScales(m){
 
 function renderChart(){
   const data   = rows.slice(-20);
-  /* Label memakai packet_id apa adanya → lompatan ID akan terlihat di sumbu X */
   const labels = data.map(r => '#' + r.packet_id);
   const canvas = document.getElementById('chart');
 
@@ -630,8 +670,6 @@ function renderChart(){
 
 /* ---------- TABEL + PAGINATION ---------- */
 function renderTable(){
-  /* Urutkan dari yang terbaru; hanya entri yang benar-benar ada di Firebase.
-     Packet ID yang tidak ada di DB tidak dibuatkan baris, jadi ID akan melompat. */
   const desc  = rows.slice().reverse();
   const total = desc.length;
   const pages = Math.max(1, Math.ceil(total / PER_PAGE));
@@ -650,12 +688,10 @@ function renderTable(){
     slice.forEach((r, i) => {
       const tr = document.createElement('tr');
 
-      /* Tandai baris pertama (terbaru) supaya berkedip halus */
       if (i === 0 && page === 1 && lastPacketId !== null && num(r.packet_id) === lastPacketId){
         tr.classList.add('fresh');
       }
 
-      /* Cek apakah ada gap sebelum entri ini (untuk pewarnaan badge) */
       const prevIdx = rows.indexOf(r) - 1;
       const prevId  = prevIdx >= 0 ? num(rows[prevIdx].packet_id) : null;
       const hasGap  = prevId !== null && (num(r.packet_id) - prevId) > 1;
@@ -676,17 +712,14 @@ function renderTable(){
     });
   }
 
-  /* --- Info range --- */
   const from = total ? start + 1 : 0;
   const to   = Math.min(start + PER_PAGE, total);
   document.getElementById('rangeInfo').textContent =
     `Menampilkan ${from}–${to} dari ${total} paket`;
 
-  /* --- Tombol prev/next --- */
   document.getElementById('prevBtn').disabled = page <= 1;
   document.getElementById('nextBtn').disabled = page >= pages;
 
-  /* --- Nomor halaman --- */
   const pagesEl = document.getElementById('pages');
   pagesEl.innerHTML = '';
   let s = Math.max(1, page - 2);
@@ -703,6 +736,205 @@ function renderTable(){
 }
 
 /* ============================================================
+   EXPORT EXCEL  (SheetJS)
+   ============================================================ */
+function exportExcel(){
+  if (!rows.length){ alert('Belum ada data untuk diexport.'); return; }
+  if (typeof XLSX === 'undefined'){
+    alert('Library Excel belum selesai dimuat. Coba lagi sebentar.');
+    return;
+  }
+
+  // Susun data dari yang terbaru → terlama (urutan tampilan tabel).
+  const data = rows.slice().reverse().map(r => ({
+    'Packet ID'      : num(r.packet_id),
+    'Battery 1 (V)'  : Number(num(r.battery1_voltage).toFixed(2)),
+    'Battery 2 (V)'  : Number(num(r.battery2_voltage).toFixed(2)),
+    'LDR'            : Math.round(num(r.ldr)),
+    'RSSI (dBm)'     : Math.round(num(r.rssi)),
+    'SNR (dB)'       : Number(num(r.snr).toFixed(2)),
+    'Gateway'        : r.gateway ?? '-',
+    'Frekuensi (Hz)' : num(r.frequency) || LORA_FREQ_HZ,
+    'SF'             : num(r.sf) || '',
+    'BW (Hz)'        : num(r.bw) || '',
+    'Waktu'          : fmtTimestamp(r.timestamp)
+  }));
+
+  // Bangun worksheet
+  const ws = XLSX.utils.json_to_sheet(data);
+
+  // Atur lebar kolom biar rapi
+  ws['!cols'] = [
+    { wch: 10 },  // Packet ID
+    { wch: 13 },  // Battery 1
+    { wch: 13 },  // Battery 2
+    { wch: 8  },  // LDR
+    { wch: 11 },  // RSSI
+    { wch: 10 },  // SNR
+    { wch: 12 },  // Gateway
+    { wch: 16 },  // Frekuensi
+    { wch: 6  },  // SF
+    { wch: 10 },  // BW
+    { wch: 22 }   // Waktu
+  ];
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Riwayat');
+
+  // Nama file dengan timestamp
+  const now = new Date();
+  const stamp = `${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}`
+              + `-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+  XLSX.writeFile(wb, `riwayat-plts-rx01-${stamp}.xlsx`);
+}
+
+/* ============================================================
+   PRINT / SIMPAN PDF
+   ============================================================ */
+function printPdf(){
+  if (!rows.length){ alert('Belum ada data untuk dicetak.'); return; }
+
+  // Data terbaru di atas
+  const data  = rows.slice().reverse();
+  const total = data.length;
+
+  const now = new Date();
+  const stamp = `${pad(now.getDate())}/${pad(now.getMonth()+1)}/${now.getFullYear()} `
+              + `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+
+  const trs = data.map(r => {
+    const prevIdx = rows.indexOf(r) - 1;
+    const prevId  = prevIdx >= 0 ? num(rows[prevIdx].packet_id) : null;
+    const hasGap  = prevId !== null && (num(r.packet_id) - prevId) > 1;
+    const gapMark = hasGap ? ' ⚠' : '';
+
+    return `<tr>
+      <td><b>#${r.packet_id ?? '-'}</b>${gapMark}</td>
+      <td>${num(r.battery1_voltage).toFixed(2)} V</td>
+      <td>${num(r.battery2_voltage).toFixed(2)} V</td>
+      <td>${Math.round(num(r.ldr))}</td>
+      <td>${Math.round(num(r.rssi))} dBm</td>
+      <td>${num(r.snr).toFixed(2)} dB</td>
+      <td>${r.gateway ?? '-'}</td>
+      <td>${fmtTimestamp(r.timestamp)}</td>
+    </tr>`;
+  }).join('');
+
+  const html = `<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Riwayat PLTS RX01 — ${stamp}</title>
+<style>
+  @page { size: A4 landscape; margin: 12mm; }
+  *{box-sizing:border-box}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    margin:0;color:#0B1B33;font-size:11px;
+  }
+  .head{
+    display:flex;justify-content:space-between;align-items:flex-start;
+    border-bottom:2.5px solid #007AFF;padding-bottom:10px;margin-bottom:14px;
+  }
+  h1{margin:0;font-size:17px;color:#0062CC;letter-spacing:-.02em}
+  .brand-sub{font-size:11px;color:#6B7C96;margin-top:4px;font-weight:500}
+  .meta{font-size:10.5px;color:#33507A;text-align:right;line-height:1.7}
+  .meta b{color:#0B1B33}
+  table{width:100%;border-collapse:collapse;font-size:10.5px}
+  thead th{
+    background:#EAF2FF;text-align:left;padding:8px 9px;
+    border-bottom:1.5px solid #C7DBF5;
+    font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;
+    color:#33507A;font-weight:800;
+  }
+  tbody td{
+    padding:7px 9px;border-bottom:1px solid #E6EEF8;
+    font-variant-numeric:tabular-nums;color:#22354F;
+  }
+  tbody tr:nth-child(even){background:#FAFCFF}
+  tbody td b{color:#0062CC}
+  .foot{
+    margin-top:14px;padding-top:8px;border-top:1px solid #E6EEF8;
+    font-size:9.5px;color:#93A3B8;text-align:center;
+  }
+  @media print{
+    body{margin:0}
+    thead{display:table-header-group}
+    tr,img{page-break-inside:avoid}
+    .no-print{display:none !important}
+  }
+  .printbar{
+    background:#F4F9FF;border:1px solid #C7DBF5;border-radius:10px;
+    padding:10px 14px;margin-bottom:14px;display:flex;
+    align-items:center;justify-content:space-between;gap:12px;
+    font-size:11px;color:#33507A;
+  }
+  .printbar button{
+    border:none;cursor:pointer;font-family:inherit;
+    padding:8px 16px;border-radius:9px;font-weight:700;font-size:11.5px;
+    background:linear-gradient(145deg,#0A84FF,#0062CC);color:#fff;
+    box-shadow:0 4px 10px rgba(0,90,220,.28);
+  }
+</style>
+</head>
+<body>
+  <div class="printbar no-print">
+    <span>Klik tombol di kanan untuk membuka dialog cetak, lalu pilih <b>Save as PDF</b>.</span>
+    <button onclick="window.print()">🖨️ Print / Save PDF</button>
+  </div>
+
+  <div class="head">
+    <div>
+      <h1>Riwayat Monitoring PLTS via LoRa</h1>
+      <div class="brand-sub">Gateway RX01 · Firebase Realtime Database · LoRa 923 MHz · SF9 · BW125k</div>
+    </div>
+    <div class="meta">
+      <div><b>Dicetak:</b> ${stamp}</div>
+      <div><b>Total paket:</b> ${total}</div>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:9%">Packet ID</th>
+        <th style="width:11%">Battery 1</th>
+        <th style="width:11%">Battery 2</th>
+        <th style="width:8%">LDR</th>
+        <th style="width:11%">RSSI</th>
+        <th style="width:10%">SNR</th>
+        <th style="width:12%">Gateway</th>
+        <th style="width:28%">Waktu</th>
+      </tr>
+    </thead>
+    <tbody>${trs}</tbody>
+  </table>
+
+  <div class="foot">
+    Monitoring PLTS via LoRa · RX01 — Dokumen dibuat otomatis dari dashboard.
+    Tanda ⚠ menandakan packet ID melompat (ada paket hilang).
+  </div>
+
+  <script>
+    // Auto-trigger print setelah dokumen siap
+    window.addEventListener('load', () => {
+      setTimeout(() => window.print(), 400);
+    });
+  <\/script>
+</body>
+</html>`;
+
+  const w = window.open('', '_blank');
+  if (!w){
+    alert('Popup diblokir browser. Mohon izinkan popup untuk mencetak PDF.');
+    return;
+  }
+  w.document.open();
+  w.document.write(html);
+  w.document.close();
+}
+
+/* ============================================================
    EVENT
    ============================================================ */
 document.getElementById('prevBtn').onclick = () => { if (page > 1){ page--; renderTable(); } };
@@ -716,6 +948,9 @@ document.querySelectorAll('.tab').forEach(tab => {
     renderChart();
   };
 });
+
+document.getElementById('exportExcel').onclick = exportExcel;
+document.getElementById('printPdf').onclick   = printPdf;
 
 document.getElementById('year').textContent = new Date().getFullYear();
 
