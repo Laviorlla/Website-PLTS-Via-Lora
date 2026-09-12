@@ -35,7 +35,6 @@ body{
   -webkit-font-smoothing:antialiased;
 }
 
-/* ============ HEADER ============ */
 header{
   position:sticky;top:0;z-index:50;
   background:rgba(255,255,255,.68);
@@ -81,7 +80,6 @@ header::before{
   100%{box-shadow:0 0 0 0 rgba(52,199,89,0)}
 }
 
-/* ============ MAIN ============ */
 main{
   flex:1;
   max-width:1180px;width:100%;margin:0 auto;
@@ -105,7 +103,6 @@ main{
 .card-head h2{margin:0;font-size:15px;font-weight:700;letter-spacing:-.01em}
 .card-head .sub{margin:2px 0 0;font-size:12px;color:var(--ink-2);font-weight:500}
 
-/* ACTION BUTTONS (Excel / PDF) */
 .card-actions{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
 .act-btn{
   border:none;cursor:pointer;font-family:inherit;
@@ -127,7 +124,6 @@ main{
 .act-btn.primary:hover{background:linear-gradient(145deg,#0077EE,#0056BB)}
 .act-btn svg{width:14px;height:14px;flex:0 0 auto}
 
-/* HERO */
 .hero{
   padding:18px 22px;
   display:flex;align-items:center;gap:18px;flex-wrap:wrap;
@@ -149,7 +145,6 @@ main{
 .hero-badge .k{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;opacity:.8;font-weight:700}
 .hero-badge .v{font-size:19px;font-weight:700;margin-top:2px}
 
-/* STATS */
 .stats{
   display:grid;gap:12px;
   grid-template-columns:repeat(auto-fit,minmax(152px,1fr));
@@ -167,7 +162,6 @@ main{
 .stat .v small{font-size:12px;font-weight:700;color:var(--ink-2);margin-left:3px}
 .stat.blue .v{color:var(--blue-dark)}
 
-/* TABS */
 .tabs{
   display:flex;gap:4px;background:rgba(0,122,255,.09);
   padding:4px;border-radius:14px;margin-left:auto;
@@ -185,7 +179,6 @@ main{
 }
 .chart-wrap{position:relative;height:320px;padding:14px 14px 8px}
 
-/* TABLE */
 .table-scroll{max-height:560px;overflow:auto}
 table{width:100%;border-collapse:collapse;font-size:13.5px}
 thead th{
@@ -205,25 +198,51 @@ tbody td{
 tbody tr{transition:background .18s}
 tbody tr:hover{background:rgba(0,122,255,.055)}
 tbody tr:last-child td{border-bottom:none}
-tbody tr.fresh{animation:freshRow 1.6s ease}
-@keyframes freshRow{
-  0%{background:rgba(0,122,255,.22)}
-  100%{background:transparent}
+
+tbody tr.gap-row td{
+  padding:6px 16px;
+  background:linear-gradient(90deg, rgba(255,149,0,.14) 0%, rgba(255,149,0,.04) 70%, rgba(255,149,0,.08) 100%);
+  border-top:1px dashed rgba(255,149,0,.30);
+  border-bottom:1px dashed rgba(255,149,0,.30);
+  border-left:3px solid #FF9500;
+  color:#7A4200;
+  font-weight:700;
+  font-size:12px;
+  text-align:center;
+  line-height:1.3;
 }
+tbody tr.gap-row:hover td{
+  background:linear-gradient(90deg, rgba(255,149,0,.20) 0%, rgba(255,149,0,.08) 70%, rgba(255,149,0,.12) 100%);
+}
+tbody tr.gap-row .gap-icon{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:16px;height:16px;border-radius:50%;
+  background:#FF9500;color:#fff;
+  font-size:10px;font-weight:900;
+  margin-right:7px;vertical-align:-2px;
+}
+tbody tr.gap-row .gap-ids{
+  display:inline-block;
+  padding:1px 7px;margin:0 2px;
+  border-radius:5px;
+  background:rgba(255,149,0,.22);
+  color:#B45309;font-weight:800;
+  font-variant-numeric:tabular-nums;
+}
+tbody tr.gap-row .gap-count{
+  color:#A15A00;font-weight:600;
+  margin-left:5px;font-size:11px;
+}
+
 .badge{
   display:inline-block;padding:4px 11px;border-radius:9px;
   background:linear-gradient(145deg,rgba(10,132,255,.14),rgba(0,98,204,.14));
   color:var(--blue-dark);font-weight:700;font-size:12.5px;
   border:1px solid rgba(0,122,255,.18);
 }
-.badge.gap{
-  background:linear-gradient(145deg,rgba(255,149,0,.16),rgba(255,59,48,.14));
-  color:#B45309;border-color:rgba(255,149,0,.28);
-}
 .muted{color:#93A3B8}
 .empty{text-align:center;padding:40px 0;color:var(--ink-2)}
 
-/* PAGER */
 .pager{
   display:flex;align-items:center;gap:12px;flex-wrap:wrap;
   padding:14px 18px;border-top:1px solid var(--line);
@@ -253,7 +272,6 @@ tbody tr.fresh{animation:freshRow 1.6s ease}
   color:#fff;box-shadow:0 6px 14px rgba(0,90,220,.35);
 }
 
-/* FOOTER */
 footer{
   margin-top:auto;
   background:rgba(255,255,255,.68);
@@ -275,12 +293,13 @@ footer{
   .tabs{margin-left:0;width:100%;justify-content:space-between}
   .tab{flex:1;text-align:center;padding:8px 6px}
   .card-actions{width:100%;justify-content:flex-end}
+  tbody tr.gap-row td{font-size:11px;padding:5px 10px}
+  tbody tr.gap-row .gap-count{display:none}
 }
 </style>
 </head>
 <body>
 
-<!-- ================= HEADER ================= -->
 <header>
   <div class="header-inner">
     <div class="logo">☀</div>
@@ -295,10 +314,8 @@ footer{
   </div>
 </header>
 
-<!-- ================= MAIN ================= -->
 <main>
 
-  <!-- HERO -->
   <section class="hero card">
     <div>
       <div class="lbl">Paket Terbaru</div>
@@ -316,7 +333,6 @@ footer{
     </div>
   </section>
 
-  <!-- STATS -->
   <section class="stats">
     <div class="stat blue"><div class="k">Battery 1</div><div class="v" id="s-bat1">0.00<small>V</small></div></div>
     <div class="stat blue"><div class="k">Battery 2</div><div class="v" id="s-bat2">0.00<small>V</small></div></div>
@@ -325,7 +341,6 @@ footer{
     <div class="stat"><div class="k">SNR</div><div class="v" id="s-snr">0.00<small>dB</small></div></div>
   </section>
 
-  <!-- CHART -->
   <section class="card">
     <div class="card-head">
       <div>
@@ -343,12 +358,11 @@ footer{
     </div>
   </section>
 
-  <!-- TABLE -->
   <section class="card">
     <div class="card-head">
       <div>
         <h2>Riwayat Data</h2>
-        <p class="sub">Hanya paket yang benar-benar ada di Firebase · ID bisa melompat</p>
+        <p class="sub">Baris orange menandakan paket yang hilang di antara dua paket yang diterima</p>
       </div>
       <div class="card-actions">
         <button class="act-btn" id="exportExcel" title="Export semua data ke Excel">
@@ -401,7 +415,6 @@ footer{
 
 </main>
 
-<!-- ================= FOOTER ================= -->
 <footer>
   <div class="footer-inner">
     <div>© <span id="year"></span> <b>Monitoring PLTS via LoRa</b> · Gateway RX01</div>
@@ -417,19 +430,16 @@ footer{
 const DB_URL       = "https://monitoring-plts-via-lora-default-rtdb.asia-southeast1.firebasedatabase.app";
 const PER_PAGE     = 10;
 const POLL_MS      = 3000;
-const LORA_FREQ_HZ = 923000000;   // default jika Firebase tidak mengirim
+const LORA_FREQ_HZ = 923000000;   // dipaksa selalu 923 MHz untuk tampilan
 
 /* ============================================================
    STATE
    ============================================================ */
-let rows = [];            // urut naik berdasarkan packet_id (hanya yg ada di Firebase)
+let rows = [];
 let page = 1;
 let mode = 'battery';
 let chart = null;
 let chartMode = null;
-let lastPacketId = null;
-
-/* Anchor untuk konversi uptime (dari ESP32) ke waktu nyata. */
 let syncAnchor = null;
 
 /* ============================================================
@@ -442,8 +452,6 @@ function hexA(hex, a){
   const h = hex.replace('#','');
   return `rgba(${parseInt(h.substr(0,2),16)},${parseInt(h.substr(2,2),16)},${parseInt(h.substr(4,2),16)},${a})`;
 }
-
-/* Format waktu nyata: DD/MM/YYYY HH:MM:SS */
 function fmtTimestamp(uptimeSec){
   if (!syncAnchor) return '—';
   const ms = syncAnchor.realMs + (num(uptimeSec) - syncAnchor.uptimeSec) * 1000;
@@ -451,27 +459,40 @@ function fmtTimestamp(uptimeSec){
   return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} `
        + `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
-
 function setStatus(online){
   const pill = document.getElementById('statusPill');
   const txt  = document.getElementById('statusText');
   pill.classList.toggle('offline', !online);
   txt.textContent = online ? 'Terhubung' : 'Terputus';
 }
+
+/* === INI DIA YANG DIUBAH: selalu tampilkan 923 MHz === */
 function fmtFreq(hz){
-  hz = num(hz) || LORA_FREQ_HZ;
-  return (hz / 1e6).toFixed(3) + ' MHz';
+  // Abaikan nilai dari Firebase, selalu pakai konstanta 923 MHz
+  return (LORA_FREQ_HZ / 1e6).toFixed(3) + ' MHz';
+}
+
+function buildMissingList(fromExclusive, toExclusive){
+  const list = [];
+  for (let i = fromExclusive + 1; i < toExclusive; i++) list.push(i);
+  return list;
+}
+function fmtMissingIds(list){
+  if (list.length <= 8){
+    return list.map(n => `<span class="gap-ids">#${n}</span>`).join(' ');
+  }
+  const shown = list.slice(0, 8).map(n => `<span class="gap-ids">#${n}</span>`).join(' ');
+  return `${shown} <span class="gap-ids">… +${list.length - 8} lagi</span>`;
 }
 
 /* ============================================================
-   AMBIL DATA FIREBASE  — hanya paket yang ada
+   AMBIL DATA FIREBASE
    ============================================================ */
 async function fetchHistory(){
   const res = await fetch(`${DB_URL}/history.json`, { cache: 'no-store' });
   if (!res.ok) throw new Error('HTTP ' + res.status);
   const json = await res.json();
   if (!json) return [];
-
   return Object.values(json)
     .filter(v => v && typeof v === 'object')
     .sort((a, b) => num(a.packet_id) - num(b.packet_id));
@@ -481,12 +502,10 @@ async function refresh(){
   try{
     rows = await fetchHistory();
     setStatus(true);
-
     if (!syncAnchor && rows.length){
       const lastUptime = num(rows[rows.length-1].timestamp);
       syncAnchor = { realMs: Date.now(), uptimeSec: lastUptime };
     }
-
     renderAll();
   }catch(err){
     console.error(err);
@@ -506,25 +525,19 @@ function renderAll(){
   renderTable();
   updateActionButtons();
 }
-
-/* Aktif/nonaktifkan tombol export & print bila belum ada data */
 function updateActionButtons(){
   const hasData = rows.length > 0;
   document.getElementById('exportExcel').disabled = !hasData;
   document.getElementById('printPdf').disabled   = !hasData;
 }
-
-/* ---------- STATISTIK ---------- */
 function renderStats(){
   const n = rows.length;
   const last = n ? rows[n-1] : {};
-
   let lost = 0;
   for (let i = 1; i < n; i++){
     const gap = num(rows[i].packet_id) - num(rows[i-1].packet_id);
     if (gap > 1) lost += gap - 1;
   }
-
   document.getElementById('heroId').textContent    = n ? '#' + last.packet_id : '#—';
   document.getElementById('heroTotal').textContent = n;
   document.getElementById('heroLost').textContent  = lost;
@@ -539,7 +552,6 @@ function renderStats(){
   document.getElementById('s-snr').innerHTML  = num(last.snr).toFixed(2) + '<small>dB</small>';
 }
 
-/* ---------- CHART ---------- */
 function mkDataset(label, data, color, axis){
   return {
     label, data, yAxisID: axis,
@@ -553,114 +565,68 @@ function mkDataset(label, data, color, axis){
       g.addColorStop(1, hexA(color, 0));
       return g;
     },
-    fill: true,
-    tension: .38,
-    borderWidth: 2.6,
-    pointRadius: 0,
-    pointHoverRadius: 5,
-    pointBackgroundColor: color,
-    pointBorderColor: '#fff',
-    pointBorderWidth: 2,
-    pointHoverBorderWidth: 2
+    fill: true, tension: .38, borderWidth: 2.6,
+    pointRadius: 0, pointHoverRadius: 5,
+    pointBackgroundColor: color, pointBorderColor: '#fff',
+    pointBorderWidth: 2, pointHoverBorderWidth: 2
   };
 }
-
 function buildDatasets(m, data){
-  if (m === 'ldr'){
-    return [ mkDataset('LDR', data.map(r => num(r.ldr)), '#0A84FF', 'y') ];
-  }
-  if (m === 'signal'){
-    return [
-      mkDataset('RSSI (dBm)', data.map(r => num(r.rssi)), '#007AFF', 'y'),
-      mkDataset('SNR (dB)',   data.map(r => num(r.snr)),  '#64D2FF', 'y1')
-    ];
-  }
+  if (m === 'ldr') return [ mkDataset('LDR', data.map(r => num(r.ldr)), '#0A84FF', 'y') ];
+  if (m === 'signal') return [
+    mkDataset('RSSI (dBm)', data.map(r => num(r.rssi)), '#007AFF', 'y'),
+    mkDataset('SNR (dB)',   data.map(r => num(r.snr)),  '#64D2FF', 'y1')
+  ];
   return [
     mkDataset('Battery 1 (V)', data.map(r => num(r.battery1_voltage)), '#007AFF', 'y'),
     mkDataset('Battery 2 (V)', data.map(r => num(r.battery2_voltage)), '#5AC8FA', 'y')
   ];
 }
-
 function buildScales(m){
   const title = { display:true, color:'#93A3B8', font:{ size:11, weight:'600' } };
   const base = {
-    x: {
-      grid: { display:false },
-      border: { display:false },
-      ticks: { color:'#8497B0', font:{ size:11 }, maxRotation:0, autoSkip:true, maxTicksLimit:10 }
-    },
-    y: {
-      grid: { color:'rgba(10,60,130,.08)' },
-      border: { display:false },
-      ticks: { color:'#8497B0', font:{ size:11 } },
-      title: { ...title, text: m === 'battery' ? 'Tegangan (V)' : m === 'ldr' ? 'Nilai ADC' : 'RSSI (dBm)' }
-    }
+    x: { grid:{display:false}, border:{display:false},
+         ticks:{ color:'#8497B0', font:{size:11}, maxRotation:0, autoSkip:true, maxTicksLimit:10 } },
+    y: { grid:{color:'rgba(10,60,130,.08)'}, border:{display:false},
+         ticks:{ color:'#8497B0', font:{size:11} },
+         title:{ ...title, text: m === 'battery' ? 'Tegangan (V)' : m === 'ldr' ? 'Nilai ADC' : 'RSSI (dBm)' } }
   };
   if (m === 'signal'){
-    base.y1 = {
-      position:'right',
-      grid:{ display:false },
-      border:{ display:false },
-      ticks:{ color:'#8497B0', font:{ size:11 } },
-      title:{ ...title, text:'SNR (dB)' }
-    };
+    base.y1 = { position:'right', grid:{display:false}, border:{display:false},
+                ticks:{ color:'#8497B0', font:{size:11} },
+                title:{ ...title, text:'SNR (dB)' } };
   }
   return base;
 }
-
 function renderChart(){
   const data   = rows.slice(-20);
   const labels = data.map(r => '#' + r.packet_id);
   const canvas = document.getElementById('chart');
-
   if (chart && chartMode === mode){
     const dsets = buildDatasets(mode, data);
     chart.data.labels = labels;
-    dsets.forEach((d, i) => {
-      if (chart.data.datasets[i]) chart.data.datasets[i].data = d.data;
-    });
+    dsets.forEach((d, i) => { if (chart.data.datasets[i]) chart.data.datasets[i].data = d.data; });
     chart.update('none');
     return;
   }
-
   if (chart){ chart.destroy(); chart = null; }
   chartMode = mode;
-
   chart = new Chart(canvas.getContext('2d'), {
     type: 'line',
     data: { labels, datasets: buildDatasets(mode, data) },
     options: {
-      responsive: true,
-      maintainAspectRatio: false,
+      responsive: true, maintainAspectRatio: false,
       animation: { duration: 450 },
       interaction: { mode:'index', intersect:false },
       layout: { padding: { top: 4, right: 6, left: 0, bottom: 0 } },
       plugins: {
-        legend: {
-          position: 'top',
-          align: 'end',
-          labels: {
-            usePointStyle: true,
-            pointStyle: 'circle',
-            boxWidth: 8,
-            boxHeight: 8,
-            padding: 16,
-            color: '#5B6B84',
-            font: { size: 12, weight: '600' }
-          }
-        },
+        legend: { position:'top', align:'end',
+          labels: { usePointStyle:true, pointStyle:'circle', boxWidth:8, boxHeight:8, padding:16,
+                    color:'#5B6B84', font:{ size:12, weight:'600' } } },
         tooltip: {
-          backgroundColor: 'rgba(255,255,255,.97)',
-          titleColor: '#0B1B33',
-          bodyColor: '#33507A',
-          borderColor: 'rgba(10,60,130,.12)',
-          borderWidth: 1,
-          padding: 12,
-          cornerRadius: 12,
-          boxPadding: 6,
-          usePointStyle: true,
-          titleFont: { size: 12, weight: '700' },
-          bodyFont: { size: 12, weight: '600' }
+          backgroundColor:'rgba(255,255,255,.97)', titleColor:'#0B1B33', bodyColor:'#33507A',
+          borderColor:'rgba(10,60,130,.12)', borderWidth:1, padding:12, cornerRadius:12, boxPadding:6,
+          usePointStyle:true, titleFont:{ size:12, weight:'700' }, bodyFont:{ size:12, weight:'600' }
         }
       },
       scales: buildScales(mode)
@@ -668,7 +634,9 @@ function renderChart(){
   });
 }
 
-/* ---------- TABEL + PAGINATION ---------- */
+/* ============================================================
+   TABEL + PAGINATION + BARIS NOTIFIKASI ORANGE
+   ============================================================ */
 function renderTable(){
   const desc  = rows.slice().reverse();
   const total = desc.length;
@@ -678,28 +646,24 @@ function renderTable(){
   if (page < 1) page = 1;
 
   const start = (page - 1) * PER_PAGE;
-  const slice = desc.slice(start, start + PER_PAGE);
+  const end   = Math.min(start + PER_PAGE, total);
+
   const tbody = document.getElementById('tbody');
   tbody.innerHTML = '';
 
-  if (!slice.length){
+  if (!total){
     tbody.innerHTML = '<tr><td colspan="8" class="empty">Belum ada data pada database…</td></tr>';
   } else {
-    slice.forEach((r, i) => {
+    for (let idx = start; idx < end; idx++){
+      const r = desc[idx];
       const tr = document.createElement('tr');
 
-      if (i === 0 && page === 1 && lastPacketId !== null && num(r.packet_id) === lastPacketId){
-        tr.classList.add('fresh');
-      }
-
-      const prevIdx = rows.indexOf(r) - 1;
-      const prevId  = prevIdx >= 0 ? num(rows[prevIdx].packet_id) : null;
-      const hasGap  = prevId !== null && (num(r.packet_id) - prevId) > 1;
-      const badgeCls = hasGap ? 'badge gap' : 'badge';
-      const gapHint  = hasGap ? ` (lompat dari #${prevId})` : '';
+      const olderIdx = idx + 1;
+      const olderId  = olderIdx < total ? num(desc[olderIdx].packet_id) : null;
+      const hasGap   = olderId !== null && (num(r.packet_id) - olderId) > 1;
 
       tr.innerHTML = `
-        <td><span class="${badgeCls}" title="${gapHint}">#${r.packet_id ?? '-'}</span></td>
+        <td><span class="badge">#${r.packet_id ?? '-'}</span></td>
         <td>${num(r.battery1_voltage).toFixed(2)} V</td>
         <td>${num(r.battery2_voltage).toFixed(2)} V</td>
         <td>${Math.round(num(r.ldr))}</td>
@@ -709,13 +673,26 @@ function renderTable(){
         <td class="muted">${fmtTimestamp(r.timestamp)}</td>
       `;
       tbody.appendChild(tr);
-    });
+
+      if (hasGap){
+        const missing = buildMissingList(olderId, num(r.packet_id));
+        const gapTr = document.createElement('tr');
+        gapTr.className = 'gap-row';
+        gapTr.innerHTML = `
+          <td colspan="8">
+            <span class="gap-icon">!</span>
+            Paket ${fmtMissingIds(missing)} tidak diterima
+            <span class="gap-count">(${missing.length} paket hilang)</span>
+          </td>
+        `;
+        tbody.appendChild(gapTr);
+      }
+    }
   }
 
   const from = total ? start + 1 : 0;
-  const to   = Math.min(start + PER_PAGE, total);
   document.getElementById('rangeInfo').textContent =
-    `Menampilkan ${from}–${to} dari ${total} paket`;
+    `Menampilkan ${from}–${end} dari ${total} paket`;
 
   document.getElementById('prevBtn').disabled = page <= 1;
   document.getElementById('nextBtn').disabled = page >= pages;
@@ -736,7 +713,7 @@ function renderTable(){
 }
 
 /* ============================================================
-   EXPORT EXCEL  (SheetJS)
+   EXPORT EXCEL
    ============================================================ */
 function exportExcel(){
   if (!rows.length){ alert('Belum ada data untuk diexport.'); return; }
@@ -744,44 +721,34 @@ function exportExcel(){
     alert('Library Excel belum selesai dimuat. Coba lagi sebentar.');
     return;
   }
-
-  // Susun data dari yang terbaru → terlama (urutan tampilan tabel).
-  const data = rows.slice().reverse().map(r => ({
-    'Packet ID'      : num(r.packet_id),
-    'Battery 1 (V)'  : Number(num(r.battery1_voltage).toFixed(2)),
-    'Battery 2 (V)'  : Number(num(r.battery2_voltage).toFixed(2)),
-    'LDR'            : Math.round(num(r.ldr)),
-    'RSSI (dBm)'     : Math.round(num(r.rssi)),
-    'SNR (dB)'       : Number(num(r.snr).toFixed(2)),
-    'Gateway'        : r.gateway ?? '-',
-    'Frekuensi (Hz)' : num(r.frequency) || LORA_FREQ_HZ,
-    'SF'             : num(r.sf) || '',
-    'BW (Hz)'        : num(r.bw) || '',
-    'Waktu'          : fmtTimestamp(r.timestamp)
-  }));
-
-  // Bangun worksheet
+  const data = rows.slice().reverse().map((r, i, arr) => {
+    const olderId = (i + 1 < arr.length) ? num(arr[i+1].packet_id) : null;
+    const gap = (olderId !== null && (num(r.packet_id) - olderId) > 1)
+      ? `Hilang: ${buildMissingList(olderId, num(r.packet_id)).map(n=>'#'+n).join(', ')}`
+      : '';
+    return {
+      'Packet ID'      : num(r.packet_id),
+      'Battery 1 (V)'  : Number(num(r.battery1_voltage).toFixed(2)),
+      'Battery 2 (V)'  : Number(num(r.battery2_voltage).toFixed(2)),
+      'LDR'            : Math.round(num(r.ldr)),
+      'RSSI (dBm)'     : Math.round(num(r.rssi)),
+      'SNR (dB)'       : Number(num(r.snr).toFixed(2)),
+      'Gateway'        : r.gateway ?? '-',
+      'Frekuensi (Hz)' : LORA_FREQ_HZ,
+      'SF'             : num(r.sf) || '',
+      'BW (Hz)'        : num(r.bw) || '',
+      'Waktu'          : fmtTimestamp(r.timestamp),
+      'Catatan'        : gap
+    };
+  });
   const ws = XLSX.utils.json_to_sheet(data);
-
-  // Atur lebar kolom biar rapi
   ws['!cols'] = [
-    { wch: 10 },  // Packet ID
-    { wch: 13 },  // Battery 1
-    { wch: 13 },  // Battery 2
-    { wch: 8  },  // LDR
-    { wch: 11 },  // RSSI
-    { wch: 10 },  // SNR
-    { wch: 12 },  // Gateway
-    { wch: 16 },  // Frekuensi
-    { wch: 6  },  // SF
-    { wch: 10 },  // BW
-    { wch: 22 }   // Waktu
+    { wch: 10 },{ wch: 13 },{ wch: 13 },{ wch: 8 },{ wch: 11 },
+    { wch: 10 },{ wch: 12 },{ wch: 16 },{ wch: 6 },{ wch: 10 },
+    { wch: 22 },{ wch: 32 }
   ];
-
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Riwayat');
-
-  // Nama file dengan timestamp
   const now = new Date();
   const stamp = `${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}`
               + `-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
@@ -789,27 +756,20 @@ function exportExcel(){
 }
 
 /* ============================================================
-   PRINT / SIMPAN PDF
+   PRINT PDF
    ============================================================ */
 function printPdf(){
   if (!rows.length){ alert('Belum ada data untuk dicetak.'); return; }
-
-  // Data terbaru di atas
   const data  = rows.slice().reverse();
   const total = data.length;
-
   const now = new Date();
-  const stamp = `${pad(now.getDate())}/${pad(now.getMonth()+1)}/${now.getFullYear()} `
+  const stamp = `${pad(now.getDate())}/${pad(now.getMonth()+1)}/${pad(now.getFullYear())} `
               + `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
 
-  const trs = data.map(r => {
-    const prevIdx = rows.indexOf(r) - 1;
-    const prevId  = prevIdx >= 0 ? num(rows[prevIdx].packet_id) : null;
-    const hasGap  = prevId !== null && (num(r.packet_id) - prevId) > 1;
-    const gapMark = hasGap ? ' ⚠' : '';
-
-    return `<tr>
-      <td><b>#${r.packet_id ?? '-'}</b>${gapMark}</td>
+  let html = '';
+  data.forEach((r, i) => {
+    html += `<tr>
+      <td><b>#${r.packet_id ?? '-'}</b></td>
       <td>${num(r.battery1_voltage).toFixed(2)} V</td>
       <td>${num(r.battery2_voltage).toFixed(2)} V</td>
       <td>${Math.round(num(r.ldr))}</td>
@@ -818,71 +778,56 @@ function printPdf(){
       <td>${r.gateway ?? '-'}</td>
       <td>${fmtTimestamp(r.timestamp)}</td>
     </tr>`;
-  }).join('');
 
-  const html = `<!DOCTYPE html>
-<html lang="id">
-<head>
-<meta charset="UTF-8">
+    const olderId = (i + 1 < data.length) ? num(data[i+1].packet_id) : null;
+    if (olderId !== null && (num(r.packet_id) - olderId) > 1){
+      const missing = buildMissingList(olderId, num(r.packet_id));
+      const list = missing.length <= 12
+        ? missing.map(n => '#' + n).join(', ')
+        : missing.slice(0, 12).map(n => '#' + n).join(', ') + ` … (+${missing.length - 12} lagi)`;
+      html += `<tr class="gap-row">
+        <td colspan="8">
+          <b>⚠ Paket ${list} tidak diterima</b>
+          <span style="color:#A15A00;">(${missing.length} paket hilang)</span>
+        </td>
+      </tr>`;
+    }
+  });
+
+  const doc = `<!DOCTYPE html>
+<html lang="id"><head><meta charset="UTF-8">
 <title>Riwayat PLTS RX01 — ${stamp}</title>
 <style>
   @page { size: A4 landscape; margin: 12mm; }
   *{box-sizing:border-box}
-  body{
-    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    margin:0;color:#0B1B33;font-size:11px;
-  }
-  .head{
-    display:flex;justify-content:space-between;align-items:flex-start;
-    border-bottom:2.5px solid #007AFF;padding-bottom:10px;margin-bottom:14px;
-  }
+  body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;margin:0;color:#0B1B33;font-size:11px;}
+  .head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2.5px solid #007AFF;padding-bottom:10px;margin-bottom:14px;}
   h1{margin:0;font-size:17px;color:#0062CC;letter-spacing:-.02em}
   .brand-sub{font-size:11px;color:#6B7C96;margin-top:4px;font-weight:500}
   .meta{font-size:10.5px;color:#33507A;text-align:right;line-height:1.7}
   .meta b{color:#0B1B33}
   table{width:100%;border-collapse:collapse;font-size:10.5px}
-  thead th{
-    background:#EAF2FF;text-align:left;padding:8px 9px;
-    border-bottom:1.5px solid #C7DBF5;
-    font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;
-    color:#33507A;font-weight:800;
-  }
-  tbody td{
-    padding:7px 9px;border-bottom:1px solid #E6EEF8;
-    font-variant-numeric:tabular-nums;color:#22354F;
-  }
+  thead th{background:#EAF2FF;text-align:left;padding:8px 9px;border-bottom:1.5px solid #C7DBF5;font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:#33507A;font-weight:800;}
+  tbody td{padding:7px 9px;border-bottom:1px solid #E6EEF8;font-variant-numeric:tabular-nums;color:#22354F;}
   tbody tr:nth-child(even){background:#FAFCFF}
   tbody td b{color:#0062CC}
-  .foot{
-    margin-top:14px;padding-top:8px;border-top:1px solid #E6EEF8;
-    font-size:9.5px;color:#93A3B8;text-align:center;
+  tbody tr.gap-row td{
+    background:linear-gradient(90deg, rgba(255,149,0,.18) 0%, rgba(255,149,0,.05) 100%);
+    border-top:1px dashed rgba(255,149,0,.45);
+    border-bottom:1px dashed rgba(255,149,0,.45);
+    border-left:3px solid #FF9500;
+    color:#7A4200; text-align:center; font-weight:700;
   }
-  @media print{
-    body{margin:0}
-    thead{display:table-header-group}
-    tr,img{page-break-inside:avoid}
-    .no-print{display:none !important}
-  }
-  .printbar{
-    background:#F4F9FF;border:1px solid #C7DBF5;border-radius:10px;
-    padding:10px 14px;margin-bottom:14px;display:flex;
-    align-items:center;justify-content:space-between;gap:12px;
-    font-size:11px;color:#33507A;
-  }
-  .printbar button{
-    border:none;cursor:pointer;font-family:inherit;
-    padding:8px 16px;border-radius:9px;font-weight:700;font-size:11.5px;
-    background:linear-gradient(145deg,#0A84FF,#0062CC);color:#fff;
-    box-shadow:0 4px 10px rgba(0,90,220,.28);
-  }
-</style>
-</head>
-<body>
+  tbody tr.gap-row b{color:#B45309 !important;}
+  .foot{margin-top:14px;padding-top:8px;border-top:1px solid #E6EEF8;font-size:9.5px;color:#93A3B8;text-align:center;}
+  @media print{body{margin:0} thead{display:table-header-group} tr,img{page-break-inside:avoid} .no-print{display:none !important}}
+  .printbar{background:#F4F9FF;border:1px solid #C7DBF5;border-radius:10px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:11px;color:#33507A;}
+  .printbar button{border:none;cursor:pointer;font-family:inherit;padding:8px 16px;border-radius:9px;font-weight:700;font-size:11.5px;background:linear-gradient(145deg,#0A84FF,#0062CC);color:#fff;box-shadow:0 4px 10px rgba(0,90,220,.28);}
+</style></head><body>
   <div class="printbar no-print">
     <span>Klik tombol di kanan untuk membuka dialog cetak, lalu pilih <b>Save as PDF</b>.</span>
     <button onclick="window.print()">🖨️ Print / Save PDF</button>
   </div>
-
   <div class="head">
     <div>
       <h1>Riwayat Monitoring PLTS via LoRa</h1>
@@ -890,39 +835,23 @@ function printPdf(){
     </div>
     <div class="meta">
       <div><b>Dicetak:</b> ${stamp}</div>
-      <div><b>Total paket:</b> ${total}</div>
+      <div><b>Total paket diterima:</b> ${total}</div>
     </div>
   </div>
-
   <table>
-    <thead>
-      <tr>
-        <th style="width:9%">Packet ID</th>
-        <th style="width:11%">Battery 1</th>
-        <th style="width:11%">Battery 2</th>
-        <th style="width:8%">LDR</th>
-        <th style="width:11%">RSSI</th>
-        <th style="width:10%">SNR</th>
-        <th style="width:12%">Gateway</th>
-        <th style="width:28%">Waktu</th>
-      </tr>
-    </thead>
-    <tbody>${trs}</tbody>
+    <thead><tr>
+      <th style="width:9%">Packet ID</th><th style="width:11%">Battery 1</th>
+      <th style="width:11%">Battery 2</th><th style="width:8%">LDR</th>
+      <th style="width:11%">RSSI</th><th style="width:10%">SNR</th>
+      <th style="width:12%">Gateway</th><th style="width:28%">Waktu</th>
+    </tr></thead>
+    <tbody>${html}</tbody>
   </table>
-
   <div class="foot">
-    Monitoring PLTS via LoRa · RX01 — Dokumen dibuat otomatis dari dashboard.
-    Tanda ⚠ menandakan packet ID melompat (ada paket hilang).
+    Monitoring PLTS via LoRa · RX01 — Baris orange menandakan paket yang hilang di antara dua paket yang diterima.
   </div>
-
-  <script>
-    // Auto-trigger print setelah dokumen siap
-    window.addEventListener('load', () => {
-      setTimeout(() => window.print(), 400);
-    });
-  <\/script>
-</body>
-</html>`;
+  <script>window.addEventListener('load',()=>{setTimeout(()=>window.print(),400);});<\/script>
+</body></html>`;
 
   const w = window.open('', '_blank');
   if (!w){
@@ -930,7 +859,7 @@ function printPdf(){
     return;
   }
   w.document.open();
-  w.document.write(html);
+  w.document.write(doc);
   w.document.close();
 }
 
@@ -951,7 +880,6 @@ document.querySelectorAll('.tab').forEach(tab => {
 
 document.getElementById('exportExcel').onclick = exportExcel;
 document.getElementById('printPdf').onclick   = printPdf;
-
 document.getElementById('year').textContent = new Date().getFullYear();
 
 /* ============================================================
