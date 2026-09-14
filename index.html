@@ -9,11 +9,8 @@
 <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 <style>
 :root{
-  --blue:#007AFF;
-  --blue-dark:#0062CC;
-  --blue-soft:#5AC8FA;
-  --ink:#0B1B33;
-  --ink-2:#6B7C96;
+  --blue:#007AFF; --blue-dark:#0062CC; --blue-soft:#5AC8FA;
+  --ink:#0B1B33; --ink-2:#6B7C96;
   --line:rgba(10,60,130,.10);
   --glass:rgba(255,255,255,.72);
   --shadow:0 10px 30px rgba(10,70,160,.10);
@@ -30,11 +27,9 @@ body{
     linear-gradient(180deg,#f3f8ff 0%, #eaf2ff 45%, #f8fbff 100%);
   background-attachment:fixed;
   min-height:100vh;
-  display:flex;
-  flex-direction:column;
+  display:flex;flex-direction:column;
   -webkit-font-smoothing:antialiased;
 }
-
 header{
   position:sticky;top:0;z-index:50;
   background:rgba(255,255,255,.68);
@@ -79,10 +74,8 @@ header::before{
   70%{box-shadow:0 0 0 9px rgba(52,199,89,0)}
   100%{box-shadow:0 0 0 0 rgba(52,199,89,0)}
 }
-
 main{
-  flex:1;
-  max-width:1180px;width:100%;margin:0 auto;
+  flex:1;max-width:1180px;width:100%;margin:0 auto;
   padding:22px 20px 40px;
   display:flex;flex-direction:column;gap:18px;
 }
@@ -102,7 +95,6 @@ main{
 }
 .card-head h2{margin:0;font-size:15px;font-weight:700;letter-spacing:-.01em}
 .card-head .sub{margin:2px 0 0;font-size:12px;color:var(--ink-2);font-weight:500}
-
 .card-actions{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
 .act-btn{
   border:none;cursor:pointer;font-family:inherit;
@@ -118,12 +110,10 @@ main{
 .act-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
 .act-btn.primary{
   background:linear-gradient(145deg,#0A84FF,#0062CC);
-  color:#fff;
-  box-shadow:0 6px 14px rgba(0,90,220,.30);
+  color:#fff;box-shadow:0 6px 14px rgba(0,90,220,.30);
 }
 .act-btn.primary:hover{background:linear-gradient(145deg,#0077EE,#0056BB)}
 .act-btn svg{width:14px;height:14px;flex:0 0 auto}
-
 .hero{
   padding:18px 22px;
   display:flex;align-items:center;gap:18px;flex-wrap:wrap;
@@ -144,11 +134,7 @@ main{
 }
 .hero-badge .k{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;opacity:.8;font-weight:700}
 .hero-badge .v{font-size:19px;font-weight:700;margin-top:2px}
-
-.stats{
-  display:grid;gap:12px;
-  grid-template-columns:repeat(auto-fit,minmax(152px,1fr));
-}
+.stats{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(152px,1fr));}
 .stat{
   background:var(--glass);
   -webkit-backdrop-filter:blur(22px) saturate(180%);
@@ -161,11 +147,7 @@ main{
 .stat .v{font-size:23px;font-weight:800;letter-spacing:-.025em;margin-top:6px;font-variant-numeric:tabular-nums}
 .stat .v small{font-size:12px;font-weight:700;color:var(--ink-2);margin-left:3px}
 .stat.blue .v{color:var(--blue-dark)}
-
-.tabs{
-  display:flex;gap:4px;background:rgba(0,122,255,.09);
-  padding:4px;border-radius:14px;margin-left:auto;
-}
+.tabs{display:flex;gap:4px;background:rgba(0,122,255,.09);padding:4px;border-radius:14px;margin-left:auto;}
 .tab{
   border:none;background:transparent;cursor:pointer;
   padding:8px 15px;border-radius:11px;
@@ -173,12 +155,8 @@ main{
   transition:.18s ease;font-family:inherit;
 }
 .tab:hover{background:rgba(255,255,255,.6)}
-.tab.active{
-  background:#fff;color:var(--blue-dark);
-  box-shadow:0 3px 10px rgba(10,70,160,.16);
-}
+.tab.active{background:#fff;color:var(--blue-dark);box-shadow:0 3px 10px rgba(10,70,160,.16);}
 .chart-wrap{position:relative;height:320px;padding:14px 14px 8px}
-
 .table-scroll{max-height:560px;overflow:auto}
 table{width:100%;border-collapse:collapse;font-size:13.5px}
 thead th{
@@ -198,18 +176,13 @@ tbody td{
 tbody tr{transition:background .18s}
 tbody tr:hover{background:rgba(0,122,255,.055)}
 tbody tr:last-child td{border-bottom:none}
-
 tbody tr.gap-row td{
   padding:6px 16px;
   background:linear-gradient(90deg, rgba(255,149,0,.14) 0%, rgba(255,149,0,.04) 70%, rgba(255,149,0,.08) 100%);
   border-top:1px dashed rgba(255,149,0,.30);
   border-bottom:1px dashed rgba(255,149,0,.30);
   border-left:3px solid #FF9500;
-  color:#7A4200;
-  font-weight:700;
-  font-size:12px;
-  text-align:center;
-  line-height:1.3;
+  color:#7A4200;font-weight:700;font-size:12px;text-align:center;line-height:1.3;
 }
 tbody tr.gap-row:hover td{
   background:linear-gradient(90deg, rgba(255,149,0,.20) 0%, rgba(255,149,0,.08) 70%, rgba(255,149,0,.12) 100%);
@@ -217,32 +190,27 @@ tbody tr.gap-row:hover td{
 tbody tr.gap-row .gap-icon{
   display:inline-flex;align-items:center;justify-content:center;
   width:16px;height:16px;border-radius:50%;
-  background:#FF9500;color:#fff;
-  font-size:10px;font-weight:900;
+  background:#FF9500;color:#fff;font-size:10px;font-weight:900;
   margin-right:7px;vertical-align:-2px;
 }
 tbody tr.gap-row .gap-ids{
-  display:inline-block;
-  padding:1px 7px;margin:0 2px;
-  border-radius:5px;
-  background:rgba(255,149,0,.22);
-  color:#B45309;font-weight:800;
-  font-variant-numeric:tabular-nums;
+  display:inline-block;padding:1px 7px;margin:0 2px;
+  border-radius:5px;background:rgba(255,149,0,.22);
+  color:#B45309;font-weight:800;font-variant-numeric:tabular-nums;
 }
-tbody tr.gap-row .gap-count{
-  color:#A15A00;font-weight:600;
-  margin-left:5px;font-size:11px;
-}
-
+tbody tr.gap-row .gap-count{color:#A15A00;font-weight:600;margin-left:5px;font-size:11px;}
 .badge{
   display:inline-block;padding:4px 11px;border-radius:9px;
   background:linear-gradient(145deg,rgba(10,132,255,.14),rgba(0,98,204,.14));
   color:var(--blue-dark);font-weight:700;font-size:12.5px;
   border:1px solid rgba(0,122,255,.18);
 }
+.badge.rt{
+  background:linear-gradient(145deg,rgba(52,199,89,.16),rgba(52,199,89,.08));
+  color:#1B7F33;border-color:rgba(52,199,89,.28);
+}
 .muted{color:#93A3B8}
 .empty{text-align:center;padding:40px 0;color:var(--ink-2)}
-
 .pager{
   display:flex;align-items:center;gap:12px;flex-wrap:wrap;
   padding:14px 18px;border-top:1px solid var(--line);
@@ -271,7 +239,33 @@ tbody tr.gap-row .gap-count{
   background:linear-gradient(145deg,#0A84FF,#0062CC);
   color:#fff;box-shadow:0 6px 14px rgba(0,90,220,.35);
 }
-
+.jump-box{
+  display:flex;align-items:center;gap:6px;
+  padding:4px 10px 4px 12px;
+  background:rgba(0,122,255,.08);
+  border:1px solid rgba(0,122,255,.18);
+  border-radius:12px;
+}
+.jump-box label{font-size:12px;color:#33507A;font-weight:600;white-space:nowrap;}
+.jump-box input[type="number"]{
+  width:64px;padding:6px 8px;
+  border:1px solid rgba(0,122,255,.25);
+  border-radius:8px;background:#fff;color:var(--blue-dark);
+  font-family:inherit;font-size:13px;font-weight:700;
+  text-align:center;font-variant-numeric:tabular-nums;
+  outline:none;-moz-appearance:textfield;
+}
+.jump-box input[type="number"]::-webkit-outer-spin-button,
+.jump-box input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+.jump-box input[type="number"]:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(10,132,255,.18);}
+.jump-box .jump-total{font-size:13px;font-weight:700;color:#6B7C96;font-variant-numeric:tabular-nums;padding:0 2px;}
+.jump-box .jump-total b{color:var(--blue-dark);font-weight:800;}
+.jump-box .pbtn{
+  padding:6px 12px;font-size:12px;
+  background:linear-gradient(145deg,#0A84FF,#0062CC);
+  color:#fff;box-shadow:0 4px 10px rgba(0,90,220,.25);
+}
+.jump-box .pbtn:hover{background:linear-gradient(145deg,#0077EE,#0056BB)}
 footer{
   margin-top:auto;
   background:rgba(255,255,255,.68);
@@ -286,7 +280,6 @@ footer{
 }
 .footer-inner .spacer{flex:1}
 .footer-inner b{color:var(--blue-dark);font-weight:700}
-
 @media (max-width:640px){
   .hero .big{font-size:30px}
   .chart-wrap{height:260px}
@@ -295,6 +288,7 @@ footer{
   .card-actions{width:100%;justify-content:flex-end}
   tbody tr.gap-row td{font-size:11px;padding:5px 10px}
   tbody tr.gap-row .gap-count{display:none}
+  .jump-box label{display:none}
 }
 </style>
 </head>
@@ -362,7 +356,7 @@ footer{
     <div class="card-head">
       <div>
         <h2>Riwayat Data</h2>
-        <p class="sub">Baris orange menandakan paket yang hilang di antara dua paket yang diterima</p>
+        <p class="sub">History (tanggal terkunci) &amp; real-time (langsung dari alat) tampil otomatis</p>
       </div>
       <div class="card-actions">
         <button class="act-btn" id="exportExcel" title="Export semua data ke Excel">
@@ -407,6 +401,12 @@ footer{
     <div class="pager">
       <div class="info" id="rangeInfo">Menampilkan 0–0 dari 0 paket</div>
       <div class="spacer"></div>
+      <div class="jump-box">
+        <label for="jumpInput">Ke halaman:</label>
+        <input type="number" id="jumpInput" min="1" value="1" />
+        <span class="jump-total">/ <b id="totalPages">1</b></span>
+        <button class="pbtn" id="jumpBtn">Go</button>
+      </div>
       <button class="pbtn" id="prevBtn">‹ Prev</button>
       <div class="pages" id="pages"></div>
       <button class="pbtn" id="nextBtn">Next ›</button>
@@ -430,17 +430,113 @@ footer{
 const DB_URL       = "https://monitoring-plts-via-lora-default-rtdb.asia-southeast1.firebasedatabase.app";
 const PER_PAGE     = 10;
 const POLL_MS      = 3000;
-const LORA_FREQ_HZ = 923000000;   // dipaksa selalu 923 MHz untuk tampilan
+const LORA_FREQ_HZ = 923000000;
+const UNIX_MIN     = 1000000000;   // ambang batas Unix epoch vs uptime
 
 /* ============================================================
    STATE
    ============================================================ */
-let rows = [];
+let rows = [];         // urut naik packet_id
 let page = 1;
 let mode = 'battery';
 let chart = null;
 let chartMode = null;
-let syncAnchor = null;
+
+/* ============================================================
+   HYBRID TIMESTAMP
+   ------------------------------------------------------------
+   - timestamp >= 1e9   → Unix epoch   → tampil langsung
+   - timestamp <  1e9   → uptime (RT)  → pakai anchor per epoch
+   Anchor disimpan di localStorage. Setiap epoch (rentang
+   tanpa reset uptime) punya anchor sendiri.
+   ============================================================ */
+const ANCHOR_KEY = 'plts_rt_anchors_v3';
+
+/* Load/save anchors */
+function loadAnchors(){
+  try { return JSON.parse(localStorage.getItem(ANCHOR_KEY) || '{}'); }
+  catch(e){ return {}; }
+}
+function saveAnchors(a){
+  try { localStorage.setItem(ANCHOR_KEY, JSON.stringify(a)); } catch(e){}
+}
+
+/* Bangun epoch map: packet_id → nomor epoch (0 = Unix / non-RT) */
+function buildEpochMap(sortedAsc){
+  const map = {};
+  let epoch = 0;
+  let lastUp = -1;
+  for (const r of sortedAsc){
+    const ts = num(r.timestamp);
+    const pid = num(r.packet_id);
+    if (ts >= UNIX_MIN || ts <= 0){
+      map[pid] = 0;   // bukan uptime
+      continue;
+    }
+    if (lastUp < 0 || ts < lastUp - 60){
+      epoch++;        // epoch baru (pertama kali atau ESP32 reset)
+    }
+    map[pid] = epoch;
+    lastUp = ts;
+  }
+  return map;
+}
+
+/* Pastikan tiap epoch punya anchor. Anchor pertama = saat ini. */
+function ensureAnchors(sortedAsc, epochMap){
+  const anchors = loadAnchors();
+  let changed = false;
+
+  // Cari paket terbaru per epoch
+  const newestByEpoch = {};
+  for (const r of sortedAsc){
+    const ep = epochMap[num(r.packet_id)];
+    if (!ep) continue;
+    const pid = num(r.packet_id);
+    if (!newestByEpoch[ep] || num(newestByEpoch[ep].packet_id) < pid){
+      newestByEpoch[ep] = r;
+    }
+  }
+
+  for (const ep of Object.keys(newestByEpoch)){
+    if (!anchors[ep]){
+      const r = newestByEpoch[ep];
+      anchors[ep] = {
+        anchorUptime: num(r.timestamp),
+        anchorMs: Date.now()
+      };
+      changed = true;
+      console.log(`[Anchor] Epoch ${ep}: uptime ${num(r.timestamp)}s → ${new Date(anchors[ep].anchorMs).toISOString()}`);
+    }
+  }
+  if (changed) saveAnchors(anchors);
+  return anchors;
+}
+
+/* Format waktu dari satu packet */
+function fmtPacketTime(row, epochMap, anchors){
+  const ts = num(row.timestamp);
+  if (ts <= 0) return '—';
+
+  // Unix epoch → langsung
+  if (ts >= UNIX_MIN){
+    const d = new Date(ts * 1000);
+    return fmtDate(d);
+  }
+
+  // Uptime → pakai anchor epoch-nya
+  const ep = epochMap[num(row.packet_id)];
+  const a = anchors[ep];
+  if (!a) return '—';
+  const ms = a.anchorMs + (ts - a.anchorUptime) * 1000;
+  return fmtDate(new Date(ms));
+}
+
+/* Helper format tanggal */
+function fmtDate(d){
+  return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} `
+       + `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
 
 /* ============================================================
    HELPER
@@ -452,26 +548,13 @@ function hexA(hex, a){
   const h = hex.replace('#','');
   return `rgba(${parseInt(h.substr(0,2),16)},${parseInt(h.substr(2,2),16)},${parseInt(h.substr(4,2),16)},${a})`;
 }
-function fmtTimestamp(uptimeSec){
-  if (!syncAnchor) return '—';
-  const ms = syncAnchor.realMs + (num(uptimeSec) - syncAnchor.uptimeSec) * 1000;
-  const d = new Date(ms);
-  return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} `
-       + `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-}
 function setStatus(online){
   const pill = document.getElementById('statusPill');
   const txt  = document.getElementById('statusText');
   pill.classList.toggle('offline', !online);
   txt.textContent = online ? 'Terhubung' : 'Terputus';
 }
-
-/* === INI DIA YANG DIUBAH: selalu tampilkan 923 MHz === */
-function fmtFreq(hz){
-  // Abaikan nilai dari Firebase, selalu pakai konstanta 923 MHz
-  return (LORA_FREQ_HZ / 1e6).toFixed(3) + ' MHz';
-}
-
+function fmtFreq(){ return (LORA_FREQ_HZ / 1e6).toFixed(3) + ' MHz'; }
 function buildMissingList(fromExclusive, toExclusive){
   const list = [];
   for (let i = fromExclusive + 1; i < toExclusive; i++) list.push(i);
@@ -495,17 +578,17 @@ async function fetchHistory(){
   if (!json) return [];
   return Object.values(json)
     .filter(v => v && typeof v === 'object')
-    .sort((a, b) => num(a.packet_id) - num(b.packet_id));
+    .sort((a, b) => {
+      const da = num(a.packet_id) - num(b.packet_id);
+      if (da !== 0) return da;
+      return num(a.timestamp) - num(b.timestamp);
+    });
 }
 
 async function refresh(){
   try{
     rows = await fetchHistory();
     setStatus(true);
-    if (!syncAnchor && rows.length){
-      const lastUptime = num(rows[rows.length-1].timestamp);
-      syncAnchor = { realMs: Date.now(), uptimeSec: lastUptime };
-    }
     renderAll();
   }catch(err){
     console.error(err);
@@ -520,16 +603,22 @@ async function refresh(){
    RENDER SEMUA
    ============================================================ */
 function renderAll(){
+  // Hitung epoch map & anchors setiap kali data berubah
+  const epochMap = buildEpochMap(rows);
+  const anchors  = ensureAnchors(rows, epochMap);
+
   renderStats();
   renderChart();
-  renderTable();
+  renderTable(epochMap, anchors);
   updateActionButtons();
 }
+
 function updateActionButtons(){
   const hasData = rows.length > 0;
   document.getElementById('exportExcel').disabled = !hasData;
   document.getElementById('printPdf').disabled   = !hasData;
 }
+
 function renderStats(){
   const n = rows.length;
   const last = n ? rows[n-1] : {};
@@ -542,7 +631,7 @@ function renderStats(){
   document.getElementById('heroTotal').textContent = n;
   document.getElementById('heroLost').textContent  = lost;
   document.getElementById('heroMeta').textContent  = n
-    ? `Gateway ${last.gateway ?? '-'} · ${fmtFreq(last.frequency)} · SF${last.sf ?? '-'} · BW${(num(last.bw)/1000 || 125).toFixed(0)}k`
+    ? `Gateway ${last.gateway ?? '-'} · ${fmtFreq()} · SF${last.sf ?? '-'} · BW${(num(last.bw)/1000 || 125).toFixed(0)}k`
     : 'Menunggu data dari gateway…';
 
   document.getElementById('s-bat1').innerHTML = num(last.battery1_voltage).toFixed(2) + '<small>V</small>';
@@ -637,7 +726,7 @@ function renderChart(){
 /* ============================================================
    TABEL + PAGINATION + BARIS NOTIFIKASI ORANGE
    ============================================================ */
-function renderTable(){
+function renderTable(epochMap, anchors){
   const desc  = rows.slice().reverse();
   const total = desc.length;
   const pages = Math.max(1, Math.ceil(total / PER_PAGE));
@@ -662,15 +751,22 @@ function renderTable(){
       const olderId  = olderIdx < total ? num(desc[olderIdx].packet_id) : null;
       const hasGap   = olderId !== null && (num(r.packet_id) - olderId) > 1;
 
+      // Tentukan jenis timestamp: Unix atau uptime
+      const isUnix = num(r.timestamp) >= UNIX_MIN;
+      const badgeCls = isUnix ? 'badge' : 'badge rt';
+      const badgeTitle = isUnix
+        ? 'Timestamp Unix (data history)'
+        : 'Timestamp uptime (data real-time)';
+
       tr.innerHTML = `
-        <td><span class="badge">#${r.packet_id ?? '-'}</span></td>
+        <td><span class="${badgeCls}" title="${badgeTitle}">#${r.packet_id ?? '-'}</span></td>
         <td>${num(r.battery1_voltage).toFixed(2)} V</td>
         <td>${num(r.battery2_voltage).toFixed(2)} V</td>
         <td>${Math.round(num(r.ldr))}</td>
         <td>${Math.round(num(r.rssi))} dBm</td>
         <td>${num(r.snr).toFixed(2)} dB</td>
         <td>${r.gateway ?? '-'}</td>
-        <td class="muted">${fmtTimestamp(r.timestamp)}</td>
+        <td class="muted">${fmtPacketTime(r, epochMap, anchors)}</td>
       `;
       tbody.appendChild(tr);
 
@@ -707,9 +803,17 @@ function renderTable(){
     const b = document.createElement('button');
     b.className = 'page-btn' + (i === page ? ' active' : '');
     b.textContent = i;
-    b.onclick = () => { page = i; renderTable(); };
+    b.onclick = () => { page = i; renderTable(epochMap, anchors); };
     pagesEl.appendChild(b);
   }
+
+  const jumpInput = document.getElementById('jumpInput');
+  if (jumpInput){
+    jumpInput.max = pages;
+    jumpInput.value = page;
+  }
+  const totalPagesEl = document.getElementById('totalPages');
+  if (totalPagesEl) totalPagesEl.textContent = pages;
 }
 
 /* ============================================================
@@ -721,6 +825,9 @@ function exportExcel(){
     alert('Library Excel belum selesai dimuat. Coba lagi sebentar.');
     return;
   }
+  const epochMap = buildEpochMap(rows);
+  const anchors  = ensureAnchors(rows, epochMap);
+
   const data = rows.slice().reverse().map((r, i, arr) => {
     const olderId = (i + 1 < arr.length) ? num(arr[i+1].packet_id) : null;
     const gap = (olderId !== null && (num(r.packet_id) - olderId) > 1)
@@ -737,7 +844,8 @@ function exportExcel(){
       'Frekuensi (Hz)' : LORA_FREQ_HZ,
       'SF'             : num(r.sf) || '',
       'BW (Hz)'        : num(r.bw) || '',
-      'Waktu'          : fmtTimestamp(r.timestamp),
+      'Waktu'          : fmtPacketTime(r, epochMap, anchors),
+      'Sumber'         : num(r.timestamp) >= UNIX_MIN ? 'History (Unix)' : 'Real-time (uptime)',
       'Catatan'        : gap
     };
   });
@@ -745,7 +853,7 @@ function exportExcel(){
   ws['!cols'] = [
     { wch: 10 },{ wch: 13 },{ wch: 13 },{ wch: 8 },{ wch: 11 },
     { wch: 10 },{ wch: 12 },{ wch: 16 },{ wch: 6 },{ wch: 10 },
-    { wch: 22 },{ wch: 32 }
+    { wch: 22 },{ wch: 20 },{ wch: 32 }
   ];
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Riwayat');
@@ -760,6 +868,9 @@ function exportExcel(){
    ============================================================ */
 function printPdf(){
   if (!rows.length){ alert('Belum ada data untuk dicetak.'); return; }
+  const epochMap = buildEpochMap(rows);
+  const anchors  = ensureAnchors(rows, epochMap);
+
   const data  = rows.slice().reverse();
   const total = data.length;
   const now = new Date();
@@ -776,7 +887,7 @@ function printPdf(){
       <td>${Math.round(num(r.rssi))} dBm</td>
       <td>${num(r.snr).toFixed(2)} dB</td>
       <td>${r.gateway ?? '-'}</td>
-      <td>${fmtTimestamp(r.timestamp)}</td>
+      <td>${fmtPacketTime(r, epochMap, anchors)}</td>
     </tr>`;
 
     const olderId = (i + 1 < data.length) ? num(data[i+1].packet_id) : null;
@@ -864,11 +975,47 @@ function printPdf(){
 }
 
 /* ============================================================
+   JUMP TO PAGE
+   ============================================================ */
+function goToPage(){
+  const input = document.getElementById('jumpInput');
+  if (!input) return;
+  const total = Math.max(1, Math.ceil(rows.length / PER_PAGE));
+  const target = parseInt(input.value, 10);
+  if (!Number.isFinite(target) || target < 1){ input.value = page; return; }
+  page = (target > total) ? total : target;
+  if (target > total) input.value = total;
+  // Rerender dengan epochMap & anchors terbaru
+  const epochMap = buildEpochMap(rows);
+  const anchors  = ensureAnchors(rows, epochMap);
+  renderTable(epochMap, anchors);
+}
+
+/* ============================================================
    EVENT
    ============================================================ */
-document.getElementById('prevBtn').onclick = () => { if (page > 1){ page--; renderTable(); } };
-document.getElementById('nextBtn').onclick = () => { page++; renderTable(); };
-
+document.getElementById('prevBtn').onclick = () => {
+  if (page > 1){
+    page--;
+    const epochMap = buildEpochMap(rows);
+    const anchors  = ensureAnchors(rows, epochMap);
+    renderTable(epochMap, anchors);
+  }
+};
+document.getElementById('nextBtn').onclick = () => {
+  page++;
+  const epochMap = buildEpochMap(rows);
+  const anchors  = ensureAnchors(rows, epochMap);
+  renderTable(epochMap, anchors);
+};
+document.getElementById('jumpBtn').onclick = goToPage;
+document.getElementById('jumpInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter'){ e.preventDefault(); goToPage(); }
+});
+document.getElementById('jumpInput').addEventListener('blur', (e) => {
+  const v = parseInt(e.target.value, 10);
+  if (!Number.isFinite(v) || v !== page) e.target.value = page;
+});
 document.querySelectorAll('.tab').forEach(tab => {
   tab.onclick = () => {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -877,7 +1024,6 @@ document.querySelectorAll('.tab').forEach(tab => {
     renderChart();
   };
 });
-
 document.getElementById('exportExcel').onclick = exportExcel;
 document.getElementById('printPdf').onclick   = printPdf;
 document.getElementById('year').textContent = new Date().getFullYear();
