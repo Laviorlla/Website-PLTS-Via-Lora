@@ -436,7 +436,7 @@ const UNIX_MIN     = 1000000000;   // ambang batas Unix epoch vs uptime
 /* ============================================================
    STATE
    ============================================================ */
-let rows = [];         // urut naik packet_id
+let rows = [];         // urut naik (timestamp lalu packet_id)
 let page = 1;
 let mode = 'battery';
 let chart = null;
@@ -452,7 +452,6 @@ let chartMode = null;
    ============================================================ */
 const ANCHOR_KEY = 'plts_rt_anchors_v3';
 
-/* Load/save anchors */
 function loadAnchors(){
   try { return JSON.parse(localStorage.getItem(ANCHOR_KEY) || '{}'); }
   catch(e){ return {}; }
@@ -487,7 +486,6 @@ function ensureAnchors(sortedAsc, epochMap){
   const anchors = loadAnchors();
   let changed = false;
 
-  // Cari paket terbaru per epoch
   const newestByEpoch = {};
   for (const r of sortedAsc){
     const ep = epochMap[num(r.packet_id)];
@@ -518,13 +516,11 @@ function fmtPacketTime(row, epochMap, anchors){
   const ts = num(row.timestamp);
   if (ts <= 0) return '—';
 
-  // Unix epoch → langsung
   if (ts >= UNIX_MIN){
     const d = new Date(ts * 1000);
     return fmtDate(d);
   }
 
-  // Uptime → pakai anchor epoch-nya
   const ep = epochMap[num(row.packet_id)];
   const a = anchors[ep];
   if (!a) return '—';
@@ -570,6 +566,11 @@ function fmtMissingIds(list){
 
 /* ============================================================
    AMBIL DATA FIREBASE
+   ------------------------------------------------------------
+   PENTING: sort utama = timestamp (waktu kejadian sebenarnya),
+   lalu packet_id sebagai tie-breaker. Ini membuat data lama
+   (10/06, 11/07, 12/07) tampil kronologis sesuai tanggal
+   percobaan, dan data real-time baru otomatis di paling atas.
    ============================================================ */
 async function fetchHistory(){
   const res = await fetch(`${DB_URL}/history.json`, { cache: 'no-store' });
@@ -579,9 +580,9 @@ async function fetchHistory(){
   return Object.values(json)
     .filter(v => v && typeof v === 'object')
     .sort((a, b) => {
-      const da = num(a.packet_id) - num(b.packet_id);
-      if (da !== 0) return da;
-      return num(a.timestamp) - num(b.timestamp);
+      const dt = num(a.timestamp) - num(b.timestamp);
+      if (dt !== 0) return dt;
+      return num(a.packet_id) - num(b.packet_id);
     });
 }
 
@@ -603,7 +604,6 @@ async function refresh(){
    RENDER SEMUA
    ============================================================ */
 function renderAll(){
-  // Hitung epoch map & anchors setiap kali data berubah
   const epochMap = buildEpochMap(rows);
   const anchors  = ensureAnchors(rows, epochMap);
 
@@ -724,7 +724,7 @@ function renderChart(){
 }
 
 /* ============================================================
-   TABEL + PAGINATION + BARIS NOTIFIKASI ORANGE
+   TABEL + PAGINATION
    ============================================================ */
 function renderTable(epochMap, anchors){
   const desc  = rows.slice().reverse();
@@ -751,7 +751,6 @@ function renderTable(epochMap, anchors){
       const olderId  = olderIdx < total ? num(desc[olderIdx].packet_id) : null;
       const hasGap   = olderId !== null && (num(r.packet_id) - olderId) > 1;
 
-      // Tentukan jenis timestamp: Unix atau uptime
       const isUnix = num(r.timestamp) >= UNIX_MIN;
       const badgeCls = isUnix ? 'badge' : 'badge rt';
       const badgeTitle = isUnix
@@ -985,7 +984,6 @@ function goToPage(){
   if (!Number.isFinite(target) || target < 1){ input.value = page; return; }
   page = (target > total) ? total : target;
   if (target > total) input.value = total;
-  // Rerender dengan epochMap & anchors terbaru
   const epochMap = buildEpochMap(rows);
   const anchors  = ensureAnchors(rows, epochMap);
   renderTable(epochMap, anchors);
