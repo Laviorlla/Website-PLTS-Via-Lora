@@ -436,19 +436,18 @@ const UNIX_MIN     = 1000000000;   // ambang batas Unix epoch vs uptime
 /* ============================================================
    STATE
    ============================================================ */
-let rows = [];         // urut naik (timestamp lalu packet_id)
+let rows = [];         // urut naik (effective time, lalu packet_id)
 let page = 1;
 let mode = 'battery';
 let chart = null;
 let chartMode = null;
 
+/* Cache epoch & anchor — dihitung sekali per fetch, dipakai semua render */
+let EPOCH_MAP = {};
+let ANCHORS   = {};
+
 /* ============================================================
    HYBRID TIMESTAMP
-   ------------------------------------------------------------
-   - timestamp >= 1e9   → Unix epoch   → tampil langsung
-   - timestamp <  1e9   → uptime (RT)  → pakai anchor per epoch
-   Anchor disimpan di localStorage. Setiap epoch (rentang
-   tanpa reset uptime) punya anchor sendiri.
    ============================================================ */
 const ANCHOR_KEY = 'plts_rt_anchors_v3';
 
@@ -511,24 +510,29 @@ function ensureAnchors(sortedAsc, epochMap){
   return anchors;
 }
 
+/* Konversi timestamp apa pun ke Unix detik absolut */
+function effectiveTime(row, epochMap, anchors){
+  const ts = num(row.timestamp);
+  if (ts <= 0) return 0;
+  if (ts >= UNIX_MIN) return ts;
+  const a = anchors[epochMap[num(row.packet_id)]];
+  if (!a) return ts;
+  return Math.floor((a.anchorMs + (ts - a.anchorUptime) * 1000) / 1000);
+}
+
 /* Format waktu dari satu packet */
 function fmtPacketTime(row, epochMap, anchors){
   const ts = num(row.timestamp);
   if (ts <= 0) return '—';
-
   if (ts >= UNIX_MIN){
-    const d = new Date(ts * 1000);
-    return fmtDate(d);
+    return fmtDate(new Date(ts * 1000));
   }
-
-  const ep = epochMap[num(row.packet_id)];
-  const a = anchors[ep];
+  const a = anchors[epochMap[num(row.packet_id)]];
   if (!a) return '—';
   const ms = a.anchorMs + (ts - a.anchorUptime) * 1000;
   return fmtDate(new Date(ms));
 }
 
-/* Helper format tanggal */
 function fmtDate(d){
   return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} `
        + `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
@@ -566,24 +570,38 @@ function fmtMissingIds(list){
 
 /* ============================================================
    AMBIL DATA FIREBASE
-   ------------------------------------------------------------
-   PENTING: sort utama = timestamp (waktu kejadian sebenarnya),
-   lalu packet_id sebagai tie-breaker. Ini membuat data lama
-   (10/06, 11/07, 12/07) tampil kronologis sesuai tanggal
-   percobaan, dan data real-time baru otomatis di paling atas.
    ============================================================ */
 async function fetchHistory(){
   const res = await fetch(`${DB_URL}/history.json`, { cache: 'no-store' });
   if (!res.ok) throw new Error('HTTP ' + res.status);
   const json = await res.json();
-  if (!json) return [];
-  return Object.values(json)
-    .filter(v => v && typeof v === 'object')
-    .sort((a, b) => {
-      const dt = num(a.timestamp) - num(b.timestamp);
-      if (dt !== 0) return dt;
-      return num(a.packet_id) - num(b.packet_id);
-    });
+  if (!json){ EPOCH_MAP = {}; ANCHORS = {}; return []; }
+
+  const arr = Object.values(json).filter(v => v && typeof v === 'object');
+
+  /* Pass 1: sort by raw timestamp → untuk deteksi epoch & anchor */
+  arr.sort((a, b) => {
+    const dt = num(a.timestamp) - num(b.timestamp);
+    if (dt !== 0) return dt;
+    return num(a.packet_id) - num(b.packet_id);
+  });
+
+  EPOCH_MAP = buildEpochMap(arr);
+  ANCHORS   = ensureAnchors(arr, EPOCH_MAP);
+
+  /* Lampirkan _epoch & _t ke tiap row */
+  arr.forEach(r => {
+    r._epoch = EPOCH_MAP[num(r.packet_id)] || 0;
+    r._t     = effectiveTime(r, EPOCH_MAP, ANCHORS);
+  });
+
+  /* Pass 2: sort by effective time → kronologis sebenarnya */
+  arr.sort((a, b) => {
+    if (a._t !== b._t) return a._t - b._t;
+    return num(a.packet_id) - num(b.packet_id);
+  });
+
+  return arr;
 }
 
 async function refresh(){
@@ -604,12 +622,9 @@ async function refresh(){
    RENDER SEMUA
    ============================================================ */
 function renderAll(){
-  const epochMap = buildEpochMap(rows);
-  const anchors  = ensureAnchors(rows, epochMap);
-
   renderStats();
   renderChart();
-  renderTable(epochMap, anchors);
+  renderTable();
   updateActionButtons();
 }
 
@@ -624,8 +639,9 @@ function renderStats(){
   const last = n ? rows[n-1] : {};
   let lost = 0;
   for (let i = 1; i < n; i++){
+    const sameEpoch = rows[i]._epoch === rows[i-1]._epoch;
     const gap = num(rows[i].packet_id) - num(rows[i-1].packet_id);
-    if (gap > 1) lost += gap - 1;
+    if (sameEpoch && gap > 1) lost += gap - 1;
   }
   document.getElementById('heroId').textContent    = n ? '#' + last.packet_id : '#—';
   document.getElementById('heroTotal').textContent = n;
@@ -726,7 +742,10 @@ function renderChart(){
 /* ============================================================
    TABEL + PAGINATION
    ============================================================ */
-function renderTable(epochMap, anchors){
+function renderTable(){
+  const epochMap = EPOCH_MAP;
+  const anchors  = ANCHORS;
+
   const desc  = rows.slice().reverse();
   const total = desc.length;
   const pages = Math.max(1, Math.ceil(total / PER_PAGE));
@@ -748,8 +767,13 @@ function renderTable(epochMap, anchors){
       const tr = document.createElement('tr');
 
       const olderIdx = idx + 1;
-      const olderId  = olderIdx < total ? num(desc[olderIdx].packet_id) : null;
-      const hasGap   = olderId !== null && (num(r.packet_id) - olderId) > 1;
+      const olderRow = olderIdx < total ? desc[olderIdx] : null;
+      const olderId  = olderRow ? num(olderRow.packet_id) : null;
+
+      const sameEpoch = olderRow !== null &&
+                        (r._epoch || 0) === (olderRow._epoch || 0);
+      const hasGap    = sameEpoch && olderId !== null &&
+                        (num(r.packet_id) - olderId) > 1;
 
       const isUnix = num(r.timestamp) >= UNIX_MIN;
       const badgeCls = isUnix ? 'badge' : 'badge rt';
@@ -802,7 +826,7 @@ function renderTable(epochMap, anchors){
     const b = document.createElement('button');
     b.className = 'page-btn' + (i === page ? ' active' : '');
     b.textContent = i;
-    b.onclick = () => { page = i; renderTable(epochMap, anchors); };
+    b.onclick = () => { page = i; renderTable(); };
     pagesEl.appendChild(b);
   }
 
@@ -824,12 +848,16 @@ function exportExcel(){
     alert('Library Excel belum selesai dimuat. Coba lagi sebentar.');
     return;
   }
-  const epochMap = buildEpochMap(rows);
-  const anchors  = ensureAnchors(rows, epochMap);
+  const epochMap = EPOCH_MAP;
+  const anchors  = ANCHORS;
 
   const data = rows.slice().reverse().map((r, i, arr) => {
-    const olderId = (i + 1 < arr.length) ? num(arr[i+1].packet_id) : null;
-    const gap = (olderId !== null && (num(r.packet_id) - olderId) > 1)
+    const olderRow = (i + 1 < arr.length) ? arr[i+1] : null;
+    const olderId  = olderRow ? num(olderRow.packet_id) : null;
+    const sameEpoch = olderRow !== null &&
+                      (r._epoch || 0) === (olderRow._epoch || 0);
+    const gap = (sameEpoch && olderId !== null &&
+                 (num(r.packet_id) - olderId) > 1)
       ? `Hilang: ${buildMissingList(olderId, num(r.packet_id)).map(n=>'#'+n).join(', ')}`
       : '';
     return {
@@ -867,8 +895,8 @@ function exportExcel(){
    ============================================================ */
 function printPdf(){
   if (!rows.length){ alert('Belum ada data untuk dicetak.'); return; }
-  const epochMap = buildEpochMap(rows);
-  const anchors  = ensureAnchors(rows, epochMap);
+  const epochMap = EPOCH_MAP;
+  const anchors  = ANCHORS;
 
   const data  = rows.slice().reverse();
   const total = data.length;
@@ -889,8 +917,11 @@ function printPdf(){
       <td>${fmtPacketTime(r, epochMap, anchors)}</td>
     </tr>`;
 
-    const olderId = (i + 1 < data.length) ? num(data[i+1].packet_id) : null;
-    if (olderId !== null && (num(r.packet_id) - olderId) > 1){
+    const olderRow = (i + 1 < data.length) ? data[i+1] : null;
+    const olderId  = olderRow ? num(olderRow.packet_id) : null;
+    const sameEpoch = olderRow !== null &&
+                      (r._epoch || 0) === (olderRow._epoch || 0);
+    if (sameEpoch && olderId !== null && (num(r.packet_id) - olderId) > 1){
       const missing = buildMissingList(olderId, num(r.packet_id));
       const list = missing.length <= 12
         ? missing.map(n => '#' + n).join(', ')
@@ -984,27 +1015,18 @@ function goToPage(){
   if (!Number.isFinite(target) || target < 1){ input.value = page; return; }
   page = (target > total) ? total : target;
   if (target > total) input.value = total;
-  const epochMap = buildEpochMap(rows);
-  const anchors  = ensureAnchors(rows, epochMap);
-  renderTable(epochMap, anchors);
+  renderTable();
 }
 
 /* ============================================================
    EVENT
    ============================================================ */
 document.getElementById('prevBtn').onclick = () => {
-  if (page > 1){
-    page--;
-    const epochMap = buildEpochMap(rows);
-    const anchors  = ensureAnchors(rows, epochMap);
-    renderTable(epochMap, anchors);
-  }
+  if (page > 1){ page--; renderTable(); }
 };
 document.getElementById('nextBtn').onclick = () => {
   page++;
-  const epochMap = buildEpochMap(rows);
-  const anchors  = ensureAnchors(rows, epochMap);
-  renderTable(epochMap, anchors);
+  renderTable();
 };
 document.getElementById('jumpBtn').onclick = goToPage;
 document.getElementById('jumpInput').addEventListener('keydown', (e) => {
