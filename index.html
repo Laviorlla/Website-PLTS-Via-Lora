@@ -887,7 +887,6 @@ function exportExcel(){
       'SF'             : num(r.sf) || '',
       'BW (Hz)'        : num(r.bw) || '',
       'Waktu'          : fmtPacketTime(r, epochMap, anchors),
-      'Sumber'         : num(r.timestamp) >= UNIX_MIN ? 'History (Unix)' : 'Real-time (uptime)',
       'Catatan'        : gap
     };
   });
@@ -895,7 +894,7 @@ function exportExcel(){
   ws['!cols'] = [
     { wch: 10 },{ wch: 13 },{ wch: 13 },{ wch: 8 },{ wch: 11 },
     { wch: 10 },{ wch: 12 },{ wch: 16 },{ wch: 6 },{ wch: 10 },
-    { wch: 22 },{ wch: 20 },{ wch: 32 }
+    { wch: 22 },{ wch: 32 }
   ];
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Riwayat');
