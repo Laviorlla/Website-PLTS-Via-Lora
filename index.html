@@ -637,12 +637,27 @@ function updateActionButtons(){
 function renderStats(){
   const n = rows.length;
   const last = n ? rows[n-1] : {};
-  let lost = 0;
-  for (let i = 1; i < n; i++){
-    const sameEpoch = rows[i]._epoch === rows[i-1]._epoch;
-    const gap = num(rows[i].packet_id) - num(rows[i-1].packet_id);
-    if (sameEpoch && gap > 1) lost += gap - 1;
-  }
+// =====================================================
+// HITUNG PACKET HILANG BERDASARKAN PACKET ID TX
+// (sesuai logika firmware TX dan RX)
+// =====================================================
+
+const ids = rows
+    .map(r => Number(r.packet_id))
+    .filter(v => Number.isFinite(v));
+
+const uniqueIds = [...new Set(ids)]
+    .sort((a, b) => a - b);
+
+let lost = 0;
+
+for (let i = 1; i < uniqueIds.length; i++) {
+    const gap = uniqueIds[i] - uniqueIds[i - 1];
+
+    if (gap > 1) {
+        lost += (gap - 1);
+    }
+}
   document.getElementById('heroId').textContent    = n ? '#' + last.packet_id : '#—';
   document.getElementById('heroTotal').textContent = n;
   document.getElementById('heroLost').textContent  = lost;
