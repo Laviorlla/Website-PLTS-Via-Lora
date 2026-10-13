@@ -444,93 +444,16 @@ let chartMode = null;
 
 /* Cache epoch & anchor — dihitung sekali per fetch, dipakai semua render */
 let EPOCH_MAP = {};
-let ANCHORS   = {};
+let ANCHORS   = {};  // (tidak dipakai lagi)
 
 /* ============================================================
-   HYBRID TIMESTAMP
+   TIMESTAMP
+   RX mengirim Unix time (NTP). Data lama berisi uptime -> tampil "—".
    ============================================================ */
-const ANCHOR_KEY = 'plts_rt_anchors_v3';
-
-function loadAnchors(){
-  try { return JSON.parse(localStorage.getItem(ANCHOR_KEY) || '{}'); }
-  catch(e){ return {}; }
-}
-function saveAnchors(a){
-  try { localStorage.setItem(ANCHOR_KEY, JSON.stringify(a)); } catch(e){}
-}
-
-/* Bangun epoch map: packet_id → nomor epoch (0 = Unix / non-RT) */
-function buildEpochMap(sortedAsc){
-  const map = {};
-  let epoch = 0;
-  let lastUp = -1;
-  for (const r of sortedAsc){
-    const ts = num(r.timestamp);
-    const pid = num(r.packet_id);
-    if (ts >= UNIX_MIN || ts <= 0){
-      map[pid] = 0;   // bukan uptime
-      continue;
-    }
-    if (lastUp < 0 || ts < lastUp - 60){
-      epoch++;        // epoch baru (pertama kali atau ESP32 reset)
-    }
-    map[pid] = epoch;
-    lastUp = ts;
-  }
-  return map;
-}
-
-/* Pastikan tiap epoch punya anchor. Anchor pertama = saat ini. */
-function ensureAnchors(sortedAsc, epochMap){
-  const anchors = loadAnchors();
-  let changed = false;
-
-  const newestByEpoch = {};
-  for (const r of sortedAsc){
-    const ep = epochMap[num(r.packet_id)];
-    if (!ep) continue;
-    const pid = num(r.packet_id);
-    if (!newestByEpoch[ep] || num(newestByEpoch[ep].packet_id) < pid){
-      newestByEpoch[ep] = r;
-    }
-  }
-
-  for (const ep of Object.keys(newestByEpoch)){
-    if (!anchors[ep]){
-      const r = newestByEpoch[ep];
-      anchors[ep] = {
-        anchorUptime: num(r.timestamp),
-        anchorMs: Date.now()
-      };
-      changed = true;
-      console.log(`[Anchor] Epoch ${ep}: uptime ${num(r.timestamp)}s → ${new Date(anchors[ep].anchorMs).toISOString()}`);
-    }
-  }
-  if (changed) saveAnchors(anchors);
-  return anchors;
-}
-
-/* Konversi timestamp apa pun ke Unix detik absolut */
-function effectiveTime(row, epochMap, anchors){
+function fmtPacketTime(row){
   const ts = num(row.timestamp);
-  if (ts <= 0) return 0;
-  if (ts >= UNIX_MIN) return ts;
-  const a = anchors[epochMap[num(row.packet_id)]];
-  if (!a) return ts;
-  return Math.floor((a.anchorMs + (ts - a.anchorUptime) * 1000) / 1000);
-}
-
-/* Format waktu dari satu packet */
-function fmtPacketTime(row, epochMap, anchors){
-  const ts = num(row.timestamp);
-  if (ts <= 0) return '—';
-  if (ts >= UNIX_MIN){
-    return fmtDate(new Date(ts * 1000));
-  }
-  const a = anchors[epochMap[num(row.packet_id)]];
-  if (!a) return '—';
-  const ms = a.anchorMs + (ts - a.anchorUptime) * 1000;
-  return fmtDate(new Date(ms));
+  if (ts >= UNIX_MIN) return fmtDate(new Date(ts * 1000));
+  return '—';
 }
 
 function fmtDate(d){
@@ -571,36 +494,38 @@ function fmtMissingIds(list){
 /* ============================================================
    AMBIL DATA FIREBASE
    ============================================================ */
+function keyCmp(a, b){
+  const na = /^\d+$/.test(a), nb = /^\d+$/.test(b);
+  if (na && nb) return Number(a) - Number(b);
+  if (na) return -1;
+  if (nb) return 1;
+  return a < b ? -1 : a > b ? 1 : 0;   // push-key Firebase = urut kronologis
+}
+
 async function fetchHistory(){
   const res = await fetch(`${DB_URL}/history.json`, { cache: 'no-store' });
   if (!res.ok) throw new Error('HTTP ' + res.status);
   const json = await res.json();
-  if (!json){ EPOCH_MAP = {}; ANCHORS = {}; return []; }
+  if (!json) return [];
 
-  const arr = Object.values(json).filter(v => v && typeof v === 'object');
+  const entries = Array.isArray(json)
+    ? json.map((v, i) => [String(i), v])
+    : Object.entries(json);
 
-  /* Pass 1: sort by raw timestamp → untuk deteksi epoch & anchor */
-  arr.sort((a, b) => {
-    const dt = num(a.timestamp) - num(b.timestamp);
-    if (dt !== 0) return dt;
-    return num(a.packet_id) - num(b.packet_id);
-  });
+  /* Urut berdasarkan KEY Firebase (= urutan kedatangan), bukan timestamp / packet_id.
+     Epoch baru dimulai saat packet_id turun (TX restart). */
+  const arr = entries
+    .filter(([k, v]) => v && typeof v === 'object')
+    .sort((a, b) => keyCmp(a[0], b[0]))
+    .map(([k, v]) => { v._key = k; return v; });
 
-  EPOCH_MAP = buildEpochMap(arr);
-  ANCHORS   = ensureAnchors(arr, EPOCH_MAP);
-
-  /* Lampirkan _epoch & _t ke tiap row */
-  arr.forEach(r => {
-    r._epoch = EPOCH_MAP[num(r.packet_id)] || 0;
-    r._t     = effectiveTime(r, EPOCH_MAP, ANCHORS);
-  });
-
-  /* Pass 2: sort by effective time → kronologis sebenarnya */
-  arr.sort((a, b) => {
-    if (a._t !== b._t) return a._t - b._t;
-    return num(a.packet_id) - num(b.packet_id);
-  });
-
+  let epoch = 1, prev = null;
+  for (const r of arr){
+    const pid = num(r.packet_id);
+    if (prev !== null && pid <= prev) epoch++;
+    r._epoch = epoch;
+    prev = pid;
+  }
   return arr;
 }
 
@@ -642,21 +567,11 @@ function renderStats(){
 // (sesuai logika firmware TX dan RX)
 // =====================================================
 
-const ids = rows
-    .map(r => Number(r.packet_id))
-    .filter(v => Number.isFinite(v));
-
-const uniqueIds = [...new Set(ids)]
-    .sort((a, b) => a - b);
-
 let lost = 0;
-
-for (let i = 1; i < uniqueIds.length; i++) {
-    const gap = uniqueIds[i] - uniqueIds[i - 1];
-
-    if (gap > 1) {
-        lost += (gap - 1);
-    }
+for (let i = 1; i < rows.length; i++){
+  if (rows[i]._epoch !== rows[i-1]._epoch) continue;   // TX restart bukan paket hilang
+  const gap = num(rows[i].packet_id) - num(rows[i-1].packet_id);
+  if (gap > 1) lost += gap - 1;
 }
   document.getElementById('heroId').textContent    = n ? '#' + last.packet_id : '#—';
   document.getElementById('heroTotal').textContent = n;
